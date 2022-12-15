@@ -11,4 +11,11 @@ public class Departamento
     public string? NomeDoDepartamento { get; set; }
     public DateTime MesVigente { get; set; }
     public DateTime AnoVigente { get; set; }
+
+    public Departamento(string? nomeDoDepartamento, DateTime mesVigente, DateTime anoVigente)
+    {
+        NomeDoDepartamento = nomeDoDepartamento;
+        MesVigente = mesVigente;
+        AnoVigente = anoVigente;
+    }
 }

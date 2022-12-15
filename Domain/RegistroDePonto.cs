@@ -8,15 +8,15 @@ namespace Domain;
 
 public class RegistroDePonto
 {
-    public int CodigoDoFuncionario { get; set; }
-    public string? NomeDoFuncionario { get; set; }
-    public decimal ValorHora { get; set; }
-    public DateOnly Data { get; set; }
-    public TimeSpan Entrada { get; set; }
-    public TimeSpan Saida { get; set; }
-    public (TimeSpan Inicio, TimeSpan Fim) Almoco { get; set; }
+    public string CodigoDoFuncionario { get; set; }
+    public string NomeDoFuncionario { get; set; }
+    public string ValorHora { get; set; }
+    public string Data { get; set; }
+    public string Entrada { get; set; }
+    public string Saida { get; set; }
+    public string Almoco { get; set; }
 
-    public RegistroDePonto(int codigoDoFuncionario, string? nomeDoFuncionario, decimal valorHora, DateOnly data, TimeSpan entrada, TimeSpan saida, (TimeSpan Inicio, TimeSpan Fim) almoco)
+    public RegistroDePonto(string codigoDoFuncionario, string nomeDoFuncionario, string valorHora, string data, string entrada, string saida, string almoco)
     {
         CodigoDoFuncionario = codigoDoFuncionario;
         NomeDoFuncionario = nomeDoFuncionario;
@@ -25,5 +25,16 @@ public class RegistroDePonto
         Entrada = entrada;
         Saida = saida;
         Almoco = almoco;
+    }
+
+    public override string ToString()
+    {
+        return "Codigo:" + CodigoDoFuncionario +
+            "Nome:" + NomeDoFuncionario +
+            "Valor Hora:" + ValorHora +
+            "Data:" + Data +
+            "Entrada:" + Entrada +
+            "Saida:" + Saida +
+            "Almoco:" + Almoco;
     }
 }

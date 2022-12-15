@@ -20,7 +20,7 @@ namespace ConverteFolhaDePontoEmArquivoJson.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(IFormFile userfile)
+        public async Task<IActionResult> Index(IFormFile userfile)
         {
             try
             {
@@ -30,10 +30,10 @@ namespace ConverteFolhaDePontoEmArquivoJson.Web.Controllers
                     filename = Path.GetFileName(filename);
                     string uploadfilepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files", filename);
                     using var stream = new FileStream(uploadfilepath, FileMode.Create);
-                    userfile.CopyToAsync(stream);
-                    stream.Close();
+                    await userfile.CopyToAsync(stream);
                     ViewBag.message = "Upload concluído";
-                    //Repository.Conversor.GeraJson(uploadfilepath);
+                    stream.Close();
+                    Repository.Conversor.GeraJson(uploadfilepath);
                 }
                 else ViewBag.message = "Tipo de arquivo não suportado. Insira um arquivo .csv";
             }
