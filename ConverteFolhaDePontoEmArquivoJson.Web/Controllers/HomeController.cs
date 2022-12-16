@@ -20,7 +20,7 @@ public class HomeController : Controller
         return View();
     }
 
-    [HttpPost]
+    [HttpPost]  
     public async Task<IActionResult> Index(List<IFormFile> userfiles)
     {
         if (userfiles.Count > 0) 
@@ -37,7 +37,7 @@ public class HomeController : Controller
                     using var stream = new FileStream(uploadfilepath, FileMode.Create);
                     await file.CopyToAsync(stream);
                     stream.Close();
-                    Repository.Conversor.GeraJson(uploadfilepath);
+                    Repository.Conversor.GeraJson(uploadfilepath, filename);
                     ViewBag.message = "Upload de " + userfiles.Count.ToString() + " arquivo(s) concluído.";
                 }
                 else

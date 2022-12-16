@@ -2,6 +2,7 @@
 
 public class RegistroDePonto
 {
+    public Departamento Departamento { get; set; }
     public string CodigoDoFuncionario { get; set; }
     public string NomeDoFuncionario { get; set; }
     public string ValorHora { get; set; }
@@ -10,9 +11,10 @@ public class RegistroDePonto
     public string Saida { get; set; }
     public string Almoco { get; set; }
 
-    public RegistroDePonto(string codigoDoFuncionario, string nomeDoFuncionario, string valorHora, string data, 
+    public RegistroDePonto(Departamento departamento, string codigoDoFuncionario, string nomeDoFuncionario, string valorHora, string data, 
         string entrada, string saida, string almoco)
     {
+        Departamento = departamento;
         CodigoDoFuncionario = codigoDoFuncionario;
         NomeDoFuncionario = nomeDoFuncionario;
         ValorHora = valorHora;
@@ -24,7 +26,8 @@ public class RegistroDePonto
 
     public override string ToString()
     {
-        return "Codigo:" + CodigoDoFuncionario + "\n" +
+        return "Departamento" + Departamento.NomeDoDepartamento + "\n" +
+            "Codigo:" + CodigoDoFuncionario + "\n" +
             "Nome:" + NomeDoFuncionario + "\n" +
             "Valor Hora:" + ValorHora + "\n" +
             "Data:" + Data + "\n" +

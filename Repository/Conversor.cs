@@ -3,9 +3,9 @@
 namespace Repository;
 public class Conversor
 {
-    public static void GeraJson(string caminho)
+    public static void GeraJson(string caminho, string filename)
     {
-        ObtemDadosDoCsv(caminho);
+        ObtemDadosDoCsv(caminho, filename);
         
     }
    
@@ -15,25 +15,17 @@ public class Conversor
         bool tipoDeArquivo = filename.EndsWith(".csv");
         if (tipoDeArquivo == true)
         {
-            var departamentos = new List<Departamento>();
             string[] nomeDoArquivo = filename.Split('-');
-            string nomeDepartamento = nomeDoArquivo[0];
+            string nomeDepartamento = nomeDoArquivo[0].Trim();
             string mes = nomeDoArquivo[1].Trim();
-            string ano = nomeDoArquivo[2].Replace(".csv", "");
+            string ano = nomeDoArquivo[2].Trim().Replace(".csv", "");
 
             if (nomeDepartamento.Length > 0 && EhMes(mes) == true)
             {
                 try
                 {
-                    int.Parse(ano);
-
-                    Departamento departamento = new(nomeDepartamento, mes, ano);
-                    if (!departamentos.Contains(departamento))
-                    {
-                        departamentos.Add(departamento);
-                    }
+                    int AnoVigente = int.Parse(ano);
                     return true;
-
                 }
                 catch { return false; }
             }
@@ -42,28 +34,29 @@ public class Conversor
     } 
     public static bool EhMes(string mes)
     {
-        switch (mes)
+        return mes switch
         {
-            case "Janeiro": return true;
-            case "Fevereiro": return true;
-            case "Março": return true;
-            case "Marco": return true;
-            case "Abril": return true;
-            case "Maio": return true;
-            case "Junho": return true;
-            case "Julho": return true;
-            case "Agosto": return true;
-            case "Setembro": return true;
-            case "Outubro": return true;
-            case "Novembro": return true;
-            case "Dezembro": return true;
-            default: return false;
-        }
-
+            "Janeiro" => true,
+            "Fevereiro" => true,
+            "Março" => true,
+            "Marco" => true,
+            "Abril" => true,
+            "Maio" => true,
+            "Junho" => true,
+            "Julho" => true,
+            "Agosto" => true,
+            "Setembro" => true,
+            "Outubro" => true,
+            "Novembro" => true,
+            "Dezembro" => true,
+            _ => false,
+        };
     }
-    public static void ObtemDadosDoCsv(string caminho)
+    public static void ObtemDadosDoCsv(string caminho, string filename)
     {
         int i;
+        var departamentos = new List<Departamento>();
+        var registroDePontos = new List<RegistroDePonto>();
         var columnCodigo = new List<string>();
         var columnFuncionario = new List<string>();
         var columnValorHora = new List<string>();
@@ -71,9 +64,18 @@ public class Conversor
         var columnEntrada = new List<string>();
         var columnSaida = new List<string>();
         var columnAlmoco = new List<string>();
-        var registrosDePonto = new List<RegistroDePonto>();
 
-        using StreamReader reader = new StreamReader(caminho);
+        string[] nomeDoArquivo = filename.Split('-');
+        string nomeDepartamento = nomeDoArquivo[0].Trim();
+        string mes = nomeDoArquivo[1].Trim();
+        string ano = nomeDoArquivo[2].Trim().Replace(".csv", "");
+        Departamento departamento = new (nomeDepartamento, mes, ano);
+        if (!departamentos.Contains(departamento))
+        {
+            departamentos.Add(departamento);
+        }
+
+        using StreamReader reader = new (caminho);
         reader.Read();
         do
         {   
@@ -98,10 +100,10 @@ public class Conversor
         {
             try
             {
-                RegistroDePonto registro = new (columnCodigo[i], columnFuncionario[i], columnValorHora[i], 
+                RegistroDePonto registro = new (departamento, columnCodigo[i], columnFuncionario[i], columnValorHora[i], 
                     columnData[i], columnEntrada[i], columnSaida[i], columnAlmoco[i]);
                 ValidaDados(registro);
-                registrosDePonto.Add(registro);
+                registroDePontos.Add(registro);
                 Console.WriteLine(registro.ToString());
             }
             catch (Exception ex)
@@ -109,6 +111,7 @@ public class Conversor
                 Console.WriteLine(ex.ToString());
             }
         }
+        CalculoDeGastos(registroDePontos);
     }
     public static void ValidaDados(RegistroDePonto registro)
     {
@@ -123,8 +126,17 @@ public class Conversor
             TimeSpan inicio = TimeSpan.Parse(almoco[0]);
             TimeSpan fim = TimeSpan.Parse(almoco[1]);
         }
-        catch{
+        catch
+        {
             Console.WriteLine("Dados Inválidos");
+        }
+    }
+
+    public static void CalculoDeGastos(List<RegistroDePonto> registroDePontos)
+    {
+        foreach (RegistroDePonto registro in registroDePontos)
+        {
+            
         }
     }
 
