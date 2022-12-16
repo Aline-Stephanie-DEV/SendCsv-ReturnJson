@@ -3,13 +3,13 @@
 }
 @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @enctype = "multipart/form-data" }))
 {
-    <span><b>Ponto</b></span>
+    <span><b>Registro de Ponto</b></span>
     <br />
-    <span> Insira a folha</span>
+    <span> Insira os arquivos</span>
     <br />
     <span style="color:red; font-weight:bold">@ViewBag.message</span>
     <br />
-    <input type="file" name="userfile" />
+    <input type="file" name="userfiles" multiple/>
     <br />
     <input type="submit" value="Upload" name="upload file" />
 }

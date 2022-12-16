@@ -1,18 +1,65 @@
 ﻿using Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository;
-
 public class Conversor
 {
     public static void GeraJson(string caminho)
     {
         ObtemDadosDoCsv(caminho);
         
+    }
+   
+    public static bool AvaliaNomeDoArquivo(string filename)
+    {
+
+        bool tipoDeArquivo = filename.EndsWith(".csv");
+        if (tipoDeArquivo == true)
+        {
+            var departamentos = new List<Departamento>();
+            string[] nomeDoArquivo = filename.Split('-');
+            string nomeDepartamento = nomeDoArquivo[0];
+            string mes = nomeDoArquivo[1].Trim();
+            string ano = nomeDoArquivo[2].Replace(".csv", "");
+
+            if (nomeDepartamento.Length > 0 && EhMes(mes) == true)
+            {
+                try
+                {
+                    int.Parse(ano);
+
+                    Departamento departamento = new(nomeDepartamento, mes, ano);
+                    if (!departamentos.Contains(departamento))
+                    {
+                        departamentos.Add(departamento);
+                    }
+                    return true;
+
+                }
+                catch { return false; }
+            }
+        }
+        return false;
+    } 
+    public static bool EhMes(string mes)
+    {
+        switch (mes)
+        {
+            case "Janeiro": return true;
+            case "Fevereiro": return true;
+            case "Março": return true;
+            case "Marco": return true;
+            case "Abril": return true;
+            case "Maio": return true;
+            case "Junho": return true;
+            case "Julho": return true;
+            case "Agosto": return true;
+            case "Setembro": return true;
+            case "Outubro": return true;
+            case "Novembro": return true;
+            case "Dezembro": return true;
+            default: return false;
+        }
+
     }
     public static void ObtemDadosDoCsv(string caminho)
     {
@@ -29,8 +76,12 @@ public class Conversor
         using StreamReader reader = new StreamReader(caminho);
         reader.Read();
         do
-        {
-            string[] splits = reader.ReadLine().Split(';');
+        {   
+            string? linha = reader.ReadLine();
+
+            if (linha == null) { break; }
+            string[] splits = linha.Split(';');
+
             columnCodigo.Add(splits[0]);
             columnFuncionario.Add(splits[1]);
             columnValorHora.Add(splits[2]);
@@ -47,7 +98,8 @@ public class Conversor
         {
             try
             {
-                RegistroDePonto registro = new RegistroDePonto(columnCodigo[i], columnFuncionario[i], columnValorHora[i], columnData[i], columnEntrada[i], columnSaida[i], columnAlmoco[i]);
+                RegistroDePonto registro = new (columnCodigo[i], columnFuncionario[i], columnValorHora[i], 
+                    columnData[i], columnEntrada[i], columnSaida[i], columnAlmoco[i]);
                 ValidaDados(registro);
                 registrosDePonto.Add(registro);
                 Console.WriteLine(registro.ToString());
@@ -62,15 +114,18 @@ public class Conversor
     {
         try
         {
-            int a = int.Parse(registro.CodigoDoFuncionario);
-            decimal c = decimal.Parse(registro.ValorHora);
-            DateOnly d = DateOnly.Parse(registro.Data);
-            TimeSpan e = TimeSpan.Parse(registro.Entrada);
-            TimeSpan f = TimeSpan.Parse(registro.Saida);
-
+            string[] almoco = registro.Almoco.Split('-');
+            int codigo = int.Parse(registro.CodigoDoFuncionario);
+            decimal valorHora = decimal.Parse(registro.ValorHora);
+            DateOnly data = DateOnly.Parse(registro.Data);
+            TimeSpan entrada = TimeSpan.Parse(registro.Entrada);
+            TimeSpan saida = TimeSpan.Parse(registro.Saida);
+            TimeSpan inicio = TimeSpan.Parse(almoco[0]);
+            TimeSpan fim = TimeSpan.Parse(almoco[1]);
         }
         catch{
             Console.WriteLine("Dados Inválidos");
         }
     }
+
 }

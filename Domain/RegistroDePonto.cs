@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain;
+﻿namespace Domain;
 
 public class RegistroDePonto
 {
@@ -16,7 +10,8 @@ public class RegistroDePonto
     public string Saida { get; set; }
     public string Almoco { get; set; }
 
-    public RegistroDePonto(string codigoDoFuncionario, string nomeDoFuncionario, string valorHora, string data, string entrada, string saida, string almoco)
+    public RegistroDePonto(string codigoDoFuncionario, string nomeDoFuncionario, string valorHora, string data, 
+        string entrada, string saida, string almoco)
     {
         CodigoDoFuncionario = codigoDoFuncionario;
         NomeDoFuncionario = nomeDoFuncionario;
@@ -29,12 +24,12 @@ public class RegistroDePonto
 
     public override string ToString()
     {
-        return "Codigo:" + CodigoDoFuncionario +
-            "Nome:" + NomeDoFuncionario +
-            "Valor Hora:" + ValorHora +
-            "Data:" + Data +
-            "Entrada:" + Entrada +
-            "Saida:" + Saida +
-            "Almoco:" + Almoco;
+        return "Codigo:" + CodigoDoFuncionario + "\n" +
+            "Nome:" + NomeDoFuncionario + "\n" +
+            "Valor Hora:" + ValorHora + "\n" +
+            "Data:" + Data + "\n" +
+            "Entrada:" + Entrada + "\n" +
+            "Saida:" + Saida + "\n" +
+            "Almoco:" + Almoco; 
     }
 }

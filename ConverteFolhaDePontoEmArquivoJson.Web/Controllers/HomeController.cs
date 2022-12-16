@@ -1,6 +1,7 @@
 ﻿using ConverteFolhaDePontoEmArquivoJson.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace ConverteFolhaDePontoEmArquivoJson.Web.Controllers;
 
@@ -20,22 +21,29 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Index(IFormFile userfile)
+    public async Task<IActionResult> Index(List<IFormFile> userfiles)
     {
+        if (userfiles.Count > 0) 
         try
         {
-            string filename = userfile.FileName;
-            if (filename.Contains(".csv"))
+            foreach (var file in userfiles)
             {
-                filename = Path.GetFileName(filename);
-                string uploadfilepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files", filename);
-                using var stream = new FileStream(uploadfilepath, FileMode.Create);
-                await userfile.CopyToAsync(stream);
-                ViewBag.message = "Upload concluído";
-                stream.Close();
-                Repository.Conversor.GeraJson(uploadfilepath);
+                string filename = file.FileName;
+                bool arquivosValidos = Repository.Conversor.AvaliaNomeDoArquivo(filename);
+                if (arquivosValidos)
+                {
+                    filename = Path.GetFileName(filename);
+                    string uploadfilepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files", filename);
+                    using var stream = new FileStream(uploadfilepath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+                    stream.Close();
+                    Repository.Conversor.GeraJson(uploadfilepath);
+                    ViewBag.message = "Upload de " + userfiles.Count.ToString() + " arquivo(s) concluído.";
+                }
+                else
+                    ViewBag.message = "Tipo de arquivo não suportado. Insira apenas arquivos nomeados da forma padrão: " +
+                            "Departamento-Mes-AAAA.csv";
             }
-            else ViewBag.message = "Tipo de arquivo não suportado. Insira um arquivo .csv";
         }
         catch (Exception ex)
         {
