@@ -4,11 +4,9 @@ using System.Diagnostics;
 using System.Text.Json.Serialization;
 
 namespace ConverteFolhaDePontoEmArquivoJson.Web.Controllers;
-
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-
     public HomeController(ILogger<HomeController> logger)
     {
         _logger = logger;
@@ -29,8 +27,8 @@ public class HomeController : Controller
             foreach (var file in userfiles)
             {
                 string filename = file.FileName;
-                bool arquivosValidos = Repository.Conversor.AvaliaNomeDoArquivo(filename);
-                if (arquivosValidos)
+                bool arquivoValido = Repository.Conversor.AvaliaNomeDoArquivo(filename);
+                if (arquivoValido)
                 {
                     filename = Path.GetFileName(filename);
                     string uploadfilepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files", filename);
@@ -38,7 +36,7 @@ public class HomeController : Controller
                     await file.CopyToAsync(stream);
                     stream.Close();
                     Repository.Conversor.GeraJson(uploadfilepath, filename);
-                    ViewBag.message = "Upload de " + userfiles.Count.ToString() + " arquivo(s) concluído.";
+                    ViewBag.message = "Upload da pasta, com " + userfiles.Count.ToString() + " arquivo(s), concluído.";
                 }
                 else
                     ViewBag.message = "Tipo de arquivo não suportado. Insira apenas arquivos nomeados da forma padrão: " +

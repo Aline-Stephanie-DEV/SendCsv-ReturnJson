@@ -1,5 +1,4 @@
 ﻿namespace Domain;
-
 public class RegistroDePonto
 {
     public Departamento Departamento { get; set; }
