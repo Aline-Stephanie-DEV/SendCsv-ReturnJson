@@ -22,16 +22,4 @@ public class RegistroDePonto
         Saida = saida;
         Almoco = almoco;
     }
-
-    public override string ToString()
-    {
-        return "Departamento" + Departamento.NomeDoDepartamento + "\n" +
-            "Codigo:" + CodigoDoFuncionario + "\n" +
-            "Nome:" + NomeDoFuncionario + "\n" +
-            "Valor Hora:" + ValorHora + "\n" +
-            "Data:" + Data + "\n" +
-            "Entrada:" + Entrada + "\n" +
-            "Saida:" + Saida + "\n" +
-            "Almoco:" + Almoco; 
-    }
 }

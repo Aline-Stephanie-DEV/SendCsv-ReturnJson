@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Domain;
 public class GastoDepartamento
@@ -10,4 +11,22 @@ public class GastoDepartamento
     public decimal TotalDescontos { get; set; }
     public decimal TotalExtras { get; set; }
     public List<Funcionario>? Funcionarios { get; set; }
+
+    public GastoDepartamento (string? departamento, string? mesVigencia, int anoVigencia, decimal totalPagar, decimal totalDescontos, decimal totalExtras, List<Funcionario>? funcionarios)
+    {
+        Departamento = departamento;
+        MesVigencia = mesVigencia;
+        AnoVigencia = anoVigencia;
+        TotalPagar = totalPagar;
+        TotalDescontos = totalDescontos;
+        TotalExtras = totalExtras;
+        Funcionarios = funcionarios;
+    }
+    public override string ToString()
+    {
+        return "Departamento:" + Departamento + "\n" + "Mes:" + MesVigencia + "\n" +
+            "Ano:" + AnoVigencia + "\n" + "Total:" + TotalPagar + "\n" +
+            "Descontos:" + TotalDescontos + "\n" + "Extras:" + TotalExtras + "\n" +
+            "Funcionarios:" + string.Join(",", Funcionarios!);
+    }
 }
