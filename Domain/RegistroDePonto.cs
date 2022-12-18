@@ -1,23 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain;
-
+﻿namespace Domain;
 public class RegistroDePonto
 {
-    public int CodigoDoFuncionario { get; set; }
-    public string? NomeDoFuncionario { get; set; }
-    public decimal ValorHora { get; set; }
-    public DateOnly Data { get; set; }
-    public TimeSpan Entrada { get; set; }
-    public TimeSpan Saida { get; set; }
-    public (TimeSpan Inicio, TimeSpan Fim) Almoco { get; set; }
+    public Departamento Departamento { get; set; }
+    public string CodigoDoFuncionario { get; set; }
+    public string NomeDoFuncionario { get; set; }
+    public string ValorHora { get; set; }
+    public string Data { get; set; }
+    public string Entrada { get; set; }
+    public string Saida { get; set; }
+    public string Almoco { get; set; }
 
-    public RegistroDePonto(int codigoDoFuncionario, string? nomeDoFuncionario, decimal valorHora, DateOnly data, TimeSpan entrada, TimeSpan saida, (TimeSpan Inicio, TimeSpan Fim) almoco)
+    public RegistroDePonto(Departamento departamento, string codigoDoFuncionario, string nomeDoFuncionario, string valorHora, string data, 
+        string entrada, string saida, string almoco)
     {
+        Departamento = departamento;
         CodigoDoFuncionario = codigoDoFuncionario;
         NomeDoFuncionario = nomeDoFuncionario;
         ValorHora = valorHora;

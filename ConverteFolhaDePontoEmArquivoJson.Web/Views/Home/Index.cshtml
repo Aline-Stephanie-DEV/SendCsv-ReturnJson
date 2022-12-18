@@ -3,17 +3,13 @@
 }
 @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @enctype = "multipart/form-data" }))
 {
-    <span><b>Ponto</b></span>
+    <span><b>Registro de Ponto</b></span>
     <br />
-    <span> Insira a folha</span>
+    <span> Insira os arquivos</span>
     <br />
     <span style="color:red; font-weight:bold">@ViewBag.message</span>
     <br />
-    <input type="file" name="userfile" />
+    <input type="file" name="userfiles" webkitdirectory directory multiple id="files">
     <br />
-    <input type="submit" value="Upload" name="upload file" />
+    <input type="submit" value="Upload" />
 }
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
