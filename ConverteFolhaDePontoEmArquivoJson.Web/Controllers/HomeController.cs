@@ -1,4 +1,5 @@
 ﻿using ConverteFolhaDePontoEmArquivoJson.Web.Models;
+using Domain;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
@@ -18,43 +19,45 @@ public class HomeController : Controller
         return View();
     }
 
-    [HttpPost]  
+    [HttpPost]
     public async Task<IActionResult> Index(List<IFormFile> userfiles)
     {
-        if (userfiles.Count > 0) 
-        try
-        {
-            foreach (var file in userfiles)
+        if (userfiles.Count > 0)
+            try
             {
-                string filename = file.FileName;
-                bool arquivoValido = Repository.Conversor.AvaliaNomeDoArquivo(filename);
-                if (arquivoValido)
+                List<GastoDepartamento> gastos = new();
+                foreach (var file in userfiles)
                 {
+                    string filename = file.FileName;
+                    bool arquivoValido = Repository.Conversor.AvaliaNomeDoArquivo(filename);
+                    if (!arquivoValido)
+                    {
+                        ViewBag.message = "Tipo de arquivo não suportado. " +
+                            "Insira apenas arquivos nomeados da forma padrão: " +
+                            "Departamento-Mes-AAAA.csv";
+                    }
                     filename = Path.GetFileName(filename);
                     string uploadfilepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files", filename);
                     using var stream = new FileStream(uploadfilepath, FileMode.Create);
                     await file.CopyToAsync(stream);
                     stream.Close();
-                    Repository.Conversor.GeraJson(uploadfilepath, filename);
-                    ViewBag.message = "Upload da pasta, com " + userfiles.Count.ToString() + " arquivo(s), concluído.";
-                        return DownloadArquivoJson();
+                    gastos.Add(Repository.Conversor.GeraJson(uploadfilepath, filename));
                 }
-                else
-                    ViewBag.message = "Tipo de arquivo não suportado. Insira apenas arquivos nomeados da forma padrão: " +
-                            "Departamento-Mes-AAAA.csv";
+                Repository.Conversor.MontaJson(gastos);
+                ViewBag.message = "Upload da pasta, com " + userfiles.Count.ToString() + " arquivo(s), concluído.";
+                return DownloadArquivoJson();
+            } 
+            catch (Exception ex)
+            {
+                ViewBag.message = "Error" + ex.Message.ToString();
             }
-        }
-        catch (Exception ex)
-        {
-            ViewBag.message = "Error" + ex.Message.ToString();
-        }
         return View();
     }
 
     [HttpGet]
     public IActionResult DownloadArquivoJson()
     {
-        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files", "GastosDoDepartamento.json");
+        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files", "GastosPorDepartamento.json");
 
         if (System.IO.File.Exists(path))
         {

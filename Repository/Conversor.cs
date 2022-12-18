@@ -1,13 +1,14 @@
 ﻿using Domain;
+using Microsoft.Win32;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Repository;
 public class Conversor
 {
-    public static void GeraJson(string caminho, string filename)
+    public static GastoDepartamento GeraJson(string caminho, string filename)
     {
-        ObtemDadosDoCsv(caminho, filename);
+       return ObtemDadosDoCsv(caminho, filename);        
     }
     public static bool AvaliaNomeDoArquivo(string filename)
     {
@@ -31,10 +32,11 @@ public class Conversor
         }
         return false;
     }
-    public static void ObtemDadosDoCsv(string caminho, string filename)
+    public static GastoDepartamento ObtemDadosDoCsv(string caminho, string filename)
     {
         var departamentos = new List<Departamento>();
         var registroDePontos = new List<RegistroDePonto>();
+
         string[] nomeDoArquivo = filename.Split('-');
         string nomeDepartamento = nomeDoArquivo[0].Trim();
         string mes = nomeDoArquivo[1].Trim();
@@ -76,7 +78,7 @@ public class Conversor
         }
         reader.Close();
 
-        CalculoDeGastos(registroDePontos, departamento);
+        return CalculoDeGastos(registroDePontos, departamento);
     }
     public static void ValidaDados(RegistroDePonto registro)
     {
@@ -96,7 +98,7 @@ public class Conversor
             throw new Exception("Dados Inválidos");
         }
     }
-    public static void CalculoDeGastos(List<RegistroDePonto> registroDePontos, Departamento departamento)
+    public static GastoDepartamento CalculoDeGastos(List<RegistroDePonto> registroDePontos, Departamento departamento)
     {
         int mes = departamento.DataVigente.Month;
         int ano = departamento.DataVigente.Year;
@@ -134,64 +136,54 @@ public class Conversor
                 _ => 23,
             };
         }
-        var funcionarios = new List<Funcionario>();
 
-        foreach (RegistroDePonto registro in registroDePontos)
+        List<Funcionario> funcionarios = new();
+        
+        Dictionary<string, List<RegistroDePonto>> pontosFuncionario = 
+            registroDePontos.GroupBy(r => r.CodigoDoFuncionario).ToDictionary(g => g.Key, g => g.ToList());
+
+        foreach (KeyValuePair<string, List<RegistroDePonto>> ponto in pontosFuncionario)
         {
-            string codigoFunc = registro.CodigoDoFuncionario;
-            string nomeFuncionario = registro.NomeDoFuncionario;
+            int codigoFuncionario = int.Parse(ponto.Key);
+            string nomeFuncionario = ponto.Value[0].NomeDoFuncionario;
 
-            List<RegistroDePonto> listaDePontosFunc = new();
-
-            for (int i = 0; i < registroDePontos.Count; i++)
-            {
-                if(registro.CodigoDoFuncionario == codigoFunc)
-                {
-                    listaDePontosFunc.Add(registro);
-                }
-            }
-            int codigoFuncionario = int.Parse(codigoFunc);
-
-            //Calculo dos Dias
-            int diasTrabalhados = listaDePontosFunc.Count;
+            int diasTrabalhados = ponto.Value.Count;
             int diferencaDias = diasDeTrabalho - diasTrabalhados;
-            int diasExtras; 
+            int diasExtras;
             int diasFalta;
             if (diferencaDias > 0) { diasFalta = diferencaDias; diasExtras = 0; }
-            if (diferencaDias < 0) { diasFalta = 0; diasExtras = diferencaDias; }
+            else if (diferencaDias < 0) { diasFalta = 0; diasExtras = diferencaDias; }
             else { diasFalta = 0; diasExtras = 0; }
 
-            //Calculo de horas
             var horasTotais = new List<TimeSpan>();
-            foreach (RegistroDePonto ponto in listaDePontosFunc)
+
+            foreach (RegistroDePonto registro in ponto.Value) 
             {
-                string[] almoco = ponto.Almoco.Split('-');
-                TimeSpan horasDia = TimeSpan.Parse(ponto.Saida) - TimeSpan.Parse(almoco[1]) + (TimeSpan.Parse(almoco[0]) - TimeSpan.Parse(ponto.Entrada));
+                string[] almoco = registro.Almoco.Split('-');
+                TimeSpan horasDia = TimeSpan.Parse(registro.Saida) - TimeSpan.Parse(almoco[1]) + (TimeSpan.Parse(almoco[0]) - TimeSpan.Parse(registro.Entrada));
                 horasTotais.Add(horasDia);
             }
             TimeSpan horasFeitas = horasTotais.Aggregate((horasDia, next) => horasDia + next);
             TimeSpan horasEsperadas = new TimeSpan(09, 00, 00) * diasDeTrabalho;
-;           TimeSpan diferancaHoras = horasEsperadas - horasFeitas;
+            ; TimeSpan diferancaHoras = horasEsperadas - horasFeitas;
             TimeSpan horasExtras;
             TimeSpan horasDebito;
             if (diferancaHoras > TimeSpan.Zero) { horasExtras = TimeSpan.Zero; horasDebito = diferancaHoras; }
-            if (diferancaHoras < TimeSpan.Zero) { horasExtras = diferancaHoras; horasDebito = TimeSpan.Zero; }
+            else if (diferancaHoras < TimeSpan.Zero) { horasExtras = diferancaHoras; horasDebito = TimeSpan.Zero; }
             else { horasExtras = TimeSpan.Zero; horasDebito = TimeSpan.Zero; }
 
-            //Calculo do valor a receber
-            decimal valorHora = decimal.Parse(registro.ValorHora);
+            decimal valorHora = decimal.Parse(ponto.Value[0].ValorHora);
             decimal horasDescontadas = Convert.ToDecimal(horasDebito.TotalHours);
             decimal horasAcrescidas = Convert.ToDecimal(horasExtras.TotalHours);
             decimal descontos = horasDescontadas * valorHora;
             decimal extras = horasAcrescidas * valorHora;
             decimal totalReceber = diasDeTrabalho * 9 * valorHora - descontos + extras;
 
-            //Salva informacoes
-            Funcionario funcionario = new(nomeFuncionario, codigoFuncionario, totalReceber, 
+            Funcionario funcionario = new(nomeFuncionario, codigoFuncionario, totalReceber,
                 horasExtras, horasDebito, diasFalta, diasExtras, diasTrabalhados)
             {
                 Extras = extras,
-                Descontos= descontos
+                Descontos = descontos
             };
 
             if (!funcionarios.Contains(funcionario))
@@ -199,7 +191,6 @@ public class Conversor
                 funcionarios.Add(funcionario);
             }
         }
-
         decimal totalPagar = funcionarios.Sum(f => f.TotalReceber); 
         decimal totalDescontos = funcionarios.Sum(d => d.Descontos);
         decimal totalExtras = funcionarios.Sum(f => f.Extras);
@@ -207,9 +198,9 @@ public class Conversor
         string? nomeDepartamento = departamento.NomeDoDepartamento;
         GastoDepartamento gastoDepartamento = new(nomeDepartamento, Utils.Meses(mes), ano, totalPagar, 
             totalDescontos , totalExtras, funcionarios);
-        MontaJson(gastoDepartamento);
+        return gastoDepartamento;
     }
-    public static void MontaJson(GastoDepartamento gastoDepartamento)
+    public static void MontaJson(List<GastoDepartamento> gastoDepartamento)
     {
         JsonSerializerOptions _options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
@@ -217,8 +208,8 @@ public class Conversor
         {
             WriteIndented = true
         };
-        var jsonString = JsonSerializer.Serialize(gastoDepartamento);
-        File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\GastosDoDepartamento.json"), jsonString);
+        var jsonString = JsonSerializer.Serialize(gastoDepartamento, options);
+        File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\GastosPorDepartamento.json"), jsonString);
 
     }
 }

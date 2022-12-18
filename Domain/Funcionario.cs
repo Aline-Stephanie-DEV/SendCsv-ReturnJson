@@ -9,7 +9,6 @@ public class Funcionario
     public int DiasFalta { get; set; }
     public int DiasExtras { get; set; }
     public int DiasTrabalhados { get; set; }
-
     public decimal Descontos { get; set; }
     public decimal Extras { get; set; }
     public Funcionario (string? nome, int codigo, decimal totalReceber, TimeSpan horasExtras, TimeSpan horasDebito, int diasFalta, int diasExtras, int diasTrabalhados)
