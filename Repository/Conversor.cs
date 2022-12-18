@@ -1,7 +1,10 @@
 ﻿using Domain;
 using Microsoft.Win32;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using System.Text.Unicode;
 
 namespace Repository;
 public class Conversor
@@ -57,13 +60,13 @@ public class Conversor
         string? linha = reader.ReadLine();
         if (linha is null){ throw new Exception("Arquivo vazio"); }
         List<string> splits = linha.Split(';').ToList();
-        int posicaoColunaCodigo = splits.IndexOf("Codigo");
-        int posicaoColunaFuncionario = splits.IndexOf("Nome");
-        int posicaoColunaValorHora = splits.IndexOf("Valor Hora");
-        int posicaoColunaData = splits.IndexOf("Data");
-        int posicaoColunaEntrada = splits.IndexOf("Entrada");
-        int posicaoColunaSaida = splits.IndexOf("Saida");
-        int posicaoColunaAlmoco = splits.IndexOf("Almoco");
+        int posicaoColunaCodigo = Array.FindIndex(splits.ToArray(), c => c == "Código"|| Regex.IsMatch(c, "[cC]*digo"));
+        int posicaoColunaFuncionario = Array.FindIndex(splits.ToArray(), c => c == "Nome" || Regex.IsMatch(c, "[nN]*ome"));
+        int posicaoColunaValorHora = Array.FindIndex(splits.ToArray(), c => c == "Valor hora" || Regex.IsMatch(c.Trim(), "[vV]alor [hH]ora"));
+        int posicaoColunaData = Array.FindIndex(splits.ToArray(), c => c == "Data" || Regex.IsMatch(c.Trim(), "[dD]ata"));
+        int posicaoColunaEntrada = Array.FindIndex(splits.ToArray(), c => c == "Entrada" || Regex.IsMatch(c.Trim(), "[eE]ntrada"));
+        int posicaoColunaSaida = Array.FindIndex(splits.ToArray(), c => c == "Saída" || Regex.IsMatch(c, "Sa*")); 
+        int posicaoColunaAlmoco = Array.FindIndex(splits.ToArray(), c => c == "Almoço" || Regex.IsMatch(c, "[aA]lmo*o"));
 
         while (!reader.EndOfStream)
         {
@@ -71,7 +74,7 @@ public class Conversor
             if (linha is null) { throw new Exception("Arquivo vazio"); }
             splits = linha.Split(';').ToList();
             RegistroDePonto registro = new(departamento, splits[posicaoColunaCodigo], splits[posicaoColunaFuncionario],
-                splits[posicaoColunaValorHora], splits[posicaoColunaData], splits[posicaoColunaEntrada],
+                splits[posicaoColunaValorHora].Replace("R$", "").Replace(" ", "").Trim(), splits[posicaoColunaData], splits[posicaoColunaEntrada],
                 splits[posicaoColunaSaida], splits[posicaoColunaAlmoco]);
             ValidaDados(registro);
             registroDePontos.Add(registro);
@@ -148,11 +151,11 @@ public class Conversor
             string nomeFuncionario = ponto.Value[0].NomeDoFuncionario;
 
             int diasTrabalhados = ponto.Value.Count;
-            int diferencaDias = diasDeTrabalho - diasTrabalhados;
+            int diferencaDias = diasTrabalhados - diasDeTrabalho;
             int diasExtras;
             int diasFalta;
-            if (diferencaDias > 0) { diasFalta = diferencaDias; diasExtras = 0; }
-            else if (diferencaDias < 0) { diasFalta = 0; diasExtras = diferencaDias; }
+            if (diferencaDias < 0) { diasFalta = diferencaDias; diasExtras = 0; }
+            else if (diferencaDias > 0) { diasFalta = 0; diasExtras = diferencaDias; }
             else { diasFalta = 0; diasExtras = 0; }
 
             var horasTotais = new List<TimeSpan>();
@@ -165,11 +168,11 @@ public class Conversor
             }
             TimeSpan horasFeitas = horasTotais.Aggregate((horasDia, next) => horasDia + next);
             TimeSpan horasEsperadas = new TimeSpan(09, 00, 00) * diasDeTrabalho;
-            ; TimeSpan diferancaHoras = horasEsperadas - horasFeitas;
+            ; TimeSpan diferancaHoras = horasFeitas - horasEsperadas;
             TimeSpan horasExtras;
             TimeSpan horasDebito;
-            if (diferancaHoras > TimeSpan.Zero) { horasExtras = TimeSpan.Zero; horasDebito = diferancaHoras; }
-            else if (diferancaHoras < TimeSpan.Zero) { horasExtras = diferancaHoras; horasDebito = TimeSpan.Zero; }
+            if (diferancaHoras < TimeSpan.Zero) { horasExtras = TimeSpan.Zero; horasDebito = diferancaHoras; }
+            else if (diferancaHoras > TimeSpan.Zero) { horasExtras = diferancaHoras; horasDebito = TimeSpan.Zero; }
             else { horasExtras = TimeSpan.Zero; horasDebito = TimeSpan.Zero; }
 
             decimal valorHora = decimal.Parse(ponto.Value[0].ValorHora);

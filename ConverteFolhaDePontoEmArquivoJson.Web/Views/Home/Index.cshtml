@@ -1,15 +1,52 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+
+
+<style>
+        .center {
+      width: 30%;
+      padding: 10px;
+    }
+    input[type=file]::file-selector-button {
+      border: 8px solid #8300E9;
+      padding: .2em .4em;
+      border-radius: .4em;
+      background-color: #8300E9;
+      transition: 1s;
+      color: white;
+    }
+    input[type=file]::file-selector-button:hover {
+      background-color: #9933ff;
+      border: 9px solid #9933ff;
+    }
+    input[type=submit] {
+      border: 8px solid #8300E9;
+      padding: .2em .4em;
+      border-radius: .4em;
+      background-color: #8300E9;
+      transition: 1s;
+      color: white;
+    }
+    input[type=submit]:hover {
+      background-color: #9933ff;
+      border: 9px solid #9933ff;
+    }
+</style>
+<div id="imagem" style="float: left;">
+    <img src="https://img.freepik.com/fotos-gratis/foto-aproximada-de-um-empresario-trabalhando-em-casa-e-fazendo-calculos_181624-20758.jpg?w=900&t=st=1671403861~exp=1671404461~hmac=52a886ad856708984faa0d63e3aea428e00e93ba7c260782065b6fe3e872b320" width="700">
+</div>
+<div style="float: right;" class="center">
 @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @enctype = "multipart/form-data" }))
 {
-    <span><b>Registro de Ponto</b></span>
+    <span style="font-size: 23px;"><b>Obtenha Json com os gastos</b></span>
+    <span style="font-size: 20px"> Selecione uma pasta:</span>
     <br />
-    <span> Insira os arquivos</span>
+    <span style="color:red; font-weight:200">@ViewBag.message</span>
     <br />
-    <span style="color:red; font-weight:bold">@ViewBag.message</span>
+    <input type="file" class="btn-files" name="userfiles" webkitdirectory directory multiple id="files">
     <br />
-    <input type="file" name="userfiles" webkitdirectory directory multiple id="files">
     <br />
     <input type="submit" value="Upload" />
 }
+</div>
