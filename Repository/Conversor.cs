@@ -1,10 +1,6 @@
 ﻿using Domain;
-using Microsoft.VisualBasic;
-using Microsoft.Win32;
-using System;
-using System.Globalization;
-using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Repository;
 public class Conversor
@@ -37,23 +33,12 @@ public class Conversor
     }
     public static void ObtemDadosDoCsv(string caminho, string filename)
     {
-        int i;
         var departamentos = new List<Departamento>();
         var registroDePontos = new List<RegistroDePonto>();
-        var columnCodigo = new List<string>();
-        var columnFuncionario = new List<string>();
-        var columnValorHora = new List<string>();
-        var columnData = new List<string>();
-        var columnEntrada = new List<string>();
-        var columnSaida = new List<string>();
-        var columnAlmoco = new List<string>();
-
         string[] nomeDoArquivo = filename.Split('-');
-
         string nomeDepartamento = nomeDoArquivo[0].Trim();
         string mes = nomeDoArquivo[1].Trim();
         string ano = nomeDoArquivo[2].Trim().Replace(".csv", "");
-        
         int dia = 1;
         int anoVigente = int.Parse(ano);
         int mesVigente = Utils.Meses(mes);
@@ -67,37 +52,30 @@ public class Conversor
 
         using StreamReader reader = new(caminho);
         reader.Read();
-        do
+        string? linha = reader.ReadLine();
+        if (linha is null){ throw new Exception("Arquivo vazio"); }
+        List<string> splits = linha.Split(';').ToList();
+        int posicaoColunaCodigo = splits.IndexOf("Codigo");
+        int posicaoColunaFuncionario = splits.IndexOf("Nome");
+        int posicaoColunaValorHora = splits.IndexOf("Valor Hora");
+        int posicaoColunaData = splits.IndexOf("Data");
+        int posicaoColunaEntrada = splits.IndexOf("Entrada");
+        int posicaoColunaSaida = splits.IndexOf("Saida");
+        int posicaoColunaAlmoco = splits.IndexOf("Almoco");
+
+        while (!reader.EndOfStream)
         {
-            string? linha = reader.ReadLine();
-            if (linha == null) { break; }
-            string[] splits = linha.Split(';');
-            columnCodigo.Add(splits[0]);
-            columnFuncionario.Add(splits[1]);
-            columnValorHora.Add(splits[2]);
-            columnData.Add(splits[3]);
-            columnEntrada.Add(splits[4]);
-            columnSaida.Add(splits[5]);
-            columnAlmoco.Add(splits[6]);
-
-        } while (!reader.EndOfStream);
-
+            linha = reader.ReadLine();
+            if (linha is null) { throw new Exception("Arquivo vazio"); }
+            splits = linha.Split(';').ToList();
+            RegistroDePonto registro = new(departamento, splits[posicaoColunaCodigo], splits[posicaoColunaFuncionario],
+                splits[posicaoColunaValorHora], splits[posicaoColunaData], splits[posicaoColunaEntrada],
+                splits[posicaoColunaSaida], splits[posicaoColunaAlmoco]);
+            ValidaDados(registro);
+            registroDePontos.Add(registro);
+        }
         reader.Close();
 
-        for (i = 1; i < columnCodigo.Count; i++)
-        {
-            try
-            {
-                RegistroDePonto registro = new(departamento, columnCodigo[i], columnFuncionario[i], columnValorHora[i],
-                    columnData[i], columnEntrada[i], columnSaida[i], columnAlmoco[i]);
-                ValidaDados(registro);
-                registroDePontos.Add(registro);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-        }
         CalculoDeGastos(registroDePontos, departamento);
     }
     public static void ValidaDados(RegistroDePonto registro)
@@ -214,7 +192,6 @@ public class Conversor
             {
                 Extras = extras,
                 Descontos= descontos
-
             };
 
             if (!funcionarios.Contains(funcionario))
@@ -234,10 +211,15 @@ public class Conversor
     }
     public static void MontaJson(GastoDepartamento gastoDepartamento)
     {
-        Console.WriteLine(gastoDepartamento.ToString());
-        string jsonString = JsonSerializer.Serialize(gastoDepartamento);
+        JsonSerializerOptions _options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
-        Console.WriteLine(jsonString);
+        var options = new JsonSerializerOptions(_options)
+        {
+            WriteIndented = true
+        };
+        var jsonString = JsonSerializer.Serialize(gastoDepartamento);
+        File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\GastosDoDepartamento.json"), jsonString);
+
     }
 }
 

@@ -32,6 +32,11 @@ public class Funcionario
     }
     public override bool Equals(object? obj)
     {
-        return obj is Funcionario funcionario && funcionario.Codigo == Codigo;
+        return obj is Funcionario funcionario && funcionario.Codigo == Codigo && funcionario.Nome == Nome;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Nome, Codigo);
     }
 }

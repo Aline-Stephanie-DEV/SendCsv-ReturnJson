@@ -37,6 +37,7 @@ public class HomeController : Controller
                     stream.Close();
                     Repository.Conversor.GeraJson(uploadfilepath, filename);
                     ViewBag.message = "Upload da pasta, com " + userfiles.Count.ToString() + " arquivo(s), concluído.";
+                        return DownloadArquivoJson();
                 }
                 else
                     ViewBag.message = "Tipo de arquivo não suportado. Insira apenas arquivos nomeados da forma padrão: " +
@@ -50,6 +51,17 @@ public class HomeController : Controller
         return View();
     }
 
+    [HttpGet]
+    public IActionResult DownloadArquivoJson()
+    {
+        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files", "GastosDoDepartamento.json");
+
+        if (System.IO.File.Exists(path))
+        {
+            return File(System.IO.File.OpenRead(path), "application/json", Path.GetFileName(path));
+        }
+        return NotFound();
+    }
     public IActionResult About()
     {
         return View();
