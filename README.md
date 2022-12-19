@@ -2,7 +2,7 @@
 
 Projeto desenvolvido durante o processo de seleção da Auvo Sistemas.  
 
-A aplicação realiza a leitura dos arquivos na pasta selecionada pelo usuário, colhendo os seus dados, tratando-os e retorna as informações sobre os gastos dos departamentos bem como as informações de cada funcionário que pertence ao departamento, em um arquivo único em formato json.
+A aplicação realiza a leitura dos arquivos na pasta selecionada pelo usuário, colhendo os seus dados, tratando-os e retorna as informações sobre os gastos dos departamentos, bem como as informações de cada funcionário que pertence ao departamento, em um arquivo único em formato json.
 
 ## Detalhes da implementação: 
 #### 1. O usuário informa a pasta, com arquivos .csv, e faz o upload.
