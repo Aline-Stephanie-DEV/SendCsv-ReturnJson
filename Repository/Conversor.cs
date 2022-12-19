@@ -62,10 +62,10 @@ public class Conversor
         List<string> splits = linha.Split(';').ToList();
         int posicaoColunaCodigo = Array.FindIndex(splits.ToArray(), c => c == "Código"|| Regex.IsMatch(c, "[cC]*digo"));
         int posicaoColunaFuncionario = Array.FindIndex(splits.ToArray(), c => c == "Nome" || Regex.IsMatch(c, "[nN]*ome"));
-        int posicaoColunaValorHora = Array.FindIndex(splits.ToArray(), c => c == "Valor hora" || Regex.IsMatch(c.Trim(), "[vV]alor [hH]ora"));
+        int posicaoColunaValorHora = Array.FindIndex(splits.ToArray(), c => c == "Valor hora" || Regex.IsMatch(c.Trim(), "[vV]alor [hH]ora") || Regex.IsMatch(c, "alor [hH]ora"));
         int posicaoColunaData = Array.FindIndex(splits.ToArray(), c => c == "Data" || Regex.IsMatch(c.Trim(), "[dD]ata"));
         int posicaoColunaEntrada = Array.FindIndex(splits.ToArray(), c => c == "Entrada" || Regex.IsMatch(c.Trim(), "[eE]ntrada"));
-        int posicaoColunaSaida = Array.FindIndex(splits.ToArray(), c => c == "Saída" || Regex.IsMatch(c, "Sa*")); 
+        int posicaoColunaSaida = Array.FindIndex(splits.ToArray(), c => c == "Saída" || Regex.IsMatch(c, "Sa*") || (Regex.IsMatch(c, "a*da") && c != "Entrada")); 
         int posicaoColunaAlmoco = Array.FindIndex(splits.ToArray(), c => c == "Almoço" || Regex.IsMatch(c, "[aA]lmo*o"));
 
         while (!reader.EndOfStream)
@@ -168,7 +168,7 @@ public class Conversor
             }
             TimeSpan horasFeitas = horasTotais.Aggregate((horasDia, next) => horasDia + next);
             TimeSpan horasEsperadas = new TimeSpan(08, 00, 00) * diasDeTrabalho;
-            ; TimeSpan diferancaHoras = horasFeitas - horasEsperadas;
+            TimeSpan diferancaHoras = horasFeitas - horasEsperadas;
             TimeSpan horasExtras;
             TimeSpan horasDebito;
             if (diferancaHoras < TimeSpan.Zero) { horasExtras = TimeSpan.Zero; horasDebito = diferancaHoras; }
@@ -180,7 +180,7 @@ public class Conversor
             decimal horasAcrescidas = Convert.ToDecimal(horasExtras.TotalHours);
             decimal descontos = horasDescontadas * valorHora;
             decimal extras = horasAcrescidas * valorHora;
-            decimal totalReceber = diasDeTrabalho * 8 * valorHora - descontos + extras;
+            decimal totalReceber = diasDeTrabalho * 8 * valorHora + descontos + extras;
 
             Funcionario funcionario = new(nomeFuncionario, codigoFuncionario, totalReceber,
                 horasExtras, horasDebito, diasFalta, diasExtras, diasTrabalhados)

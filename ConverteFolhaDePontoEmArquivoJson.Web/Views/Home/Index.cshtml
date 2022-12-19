@@ -38,12 +38,12 @@
 <div style="float: right;" class="center">
 @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @enctype = "multipart/form-data" }))
 {
-    <span style="font-size: 23px; font-weight: 500;" > Obtenha Json com os gastos</span>
+    <span style="font-size: 21px; font-weight: 500;" > Obtenha controle de pagamento</span>
     <span style="font-size: 20px"> Selecione uma pasta:</span>
     <br />
     <span style="color:red; font-weight:200">@ViewBag.message</span>
     <br />
-    <input type="file" name="userfiles" webkitdirectory directory multiple id="files">
+        <input type="file" name="userfiles" webkitdirectory directory multiple id="files">
     <br />
     <br />
     <input type="submit" value="Upload" />
