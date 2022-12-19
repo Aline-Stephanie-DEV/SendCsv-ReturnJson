@@ -167,7 +167,7 @@ public class Conversor
                 horasTotais.Add(horasDia);
             }
             TimeSpan horasFeitas = horasTotais.Aggregate((horasDia, next) => horasDia + next);
-            TimeSpan horasEsperadas = new TimeSpan(09, 00, 00) * diasDeTrabalho;
+            TimeSpan horasEsperadas = new TimeSpan(08, 00, 00) * diasDeTrabalho;
             ; TimeSpan diferancaHoras = horasFeitas - horasEsperadas;
             TimeSpan horasExtras;
             TimeSpan horasDebito;
@@ -180,7 +180,7 @@ public class Conversor
             decimal horasAcrescidas = Convert.ToDecimal(horasExtras.TotalHours);
             decimal descontos = horasDescontadas * valorHora;
             decimal extras = horasAcrescidas * valorHora;
-            decimal totalReceber = diasDeTrabalho * 9 * valorHora - descontos + extras;
+            decimal totalReceber = diasDeTrabalho * 8 * valorHora - descontos + extras;
 
             Funcionario funcionario = new(nomeFuncionario, codigoFuncionario, totalReceber,
                 horasExtras, horasDebito, diasFalta, diasExtras, diasTrabalhados)
