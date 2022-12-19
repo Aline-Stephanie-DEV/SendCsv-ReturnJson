@@ -1,4 +1,6 @@
-﻿namespace Domain;
+﻿using System.Text.Json.Serialization;
+
+namespace Domain;
 public class Funcionario
 {
     public string? Nome { get; set; }
@@ -9,7 +11,9 @@ public class Funcionario
     public int DiasFalta { get; set; }
     public int DiasExtras { get; set; }
     public int DiasTrabalhados { get; set; }
+    [JsonIgnore]
     public decimal Descontos { get; set; }
+    [JsonIgnore]
     public decimal Extras { get; set; }
     public Funcionario (string? nome, int codigo, decimal totalReceber, TimeSpan horasExtras, TimeSpan horasDebito, int diasFalta, int diasExtras, int diasTrabalhados)
     {
